@@ -16,5 +16,5 @@
 If you discover a security vulnerability in this project (e.g., SSRF bypass, denial of service, CSRF issue, or injection flaw), please report it responsibly:
 
 1. **Do not open a public issue.**
-2. Send an email describing the issue, impact, and reproduction steps to **nishadyash99@gmail.com**.
+2. Send an email describing the issue, impact, and reproduction steps to ****.
 3. Allow reasonable time for the issue to be evaluated and addressed before public disclosure.
