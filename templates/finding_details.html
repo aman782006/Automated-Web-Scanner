@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}{{ finding.title | truncate(60) }} — Finding Detail{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb small">
+    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('results', scan_id=result.scan_id) }}">Results</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Finding Detail</li>
+  </ol>
+</nav>
+
+<!-- Finding Header Card -->
+<div class="card shadow-sm border-0 mb-4 finding-header-card finding-border-{{ finding.severity | lower }}">
+  <div class="card-body p-4">
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      <span class="severity-badge severity-{{ finding.severity | lower }} fs-6 px-3 py-1">
+        <i class="bi bi-exclamation-circle me-1"></i>{{ finding.severity }}
+      </span>
+      <span class="badge bg-secondary py-2 px-3">{{ finding.category }}</span>
+      <span class="obs-badge obs-{{ finding.status }} py-2 px-3">
+        {{ finding.status | replace('_',' ') | title }}
+      </span>
+      <span class="badge bg-light text-dark border py-2 px-3">
+        <i class="bi bi-shield-check me-1 text-success"></i>Confidence: {{ finding.confidence }}
+      </span>
+    </div>
+    <h2 class="fw-bold mb-1">{{ finding.title }}</h2>
+    <p class="text-muted small mb-0">
+      <code>{{ finding.rule_id }}</code>
+      &nbsp;&bull;&nbsp;
+      Target: <a href="{{ result.target_url }}" target="_blank" rel="noopener noreferrer"
+                  class="text-decoration-none">{{ result.target_url }}</a>
+      &nbsp;&bull;&nbsp;
+      {{ finding.scan_timestamp[:19] | replace("T"," ") }} UTC
+    </p>
+  </div>
+</div>
+
+<!-- Detail Sections -->
+<div class="row g-4">
+
+  <!-- Left column: main info -->
+  <div class="col-lg-8">
+
+    <!-- Explanation -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <h5 class="fw-semibold mb-3">
+          <i class="bi bi-info-circle-fill text-accent me-2"></i>Security Explanation
+        </h5>
+        <p class="mb-0">{{ finding.explanation }}</p>
+      </div>
+    </div>
+
+    <!-- Potential Impact -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <h5 class="fw-semibold mb-3">
+          <i class="bi bi-lightning-fill text-warning me-2"></i>Potential Impact
+        </h5>
+        <p class="mb-0">{{ finding.potential_impact }}</p>
+      </div>
+    </div>
+
+    <!-- Remediation -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <h5 class="fw-semibold mb-3">
+          <i class="bi bi-wrench-adjustable-fill text-success me-2"></i>Recommended Remediation
+        </h5>
+        <div class="mb-0 remediation-text">
+          {% for line in finding.remediation.split('\n') %}
+            {% if line.strip() %}<p class="mb-1">{{ line }}</p>{% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right column: evidence / meta -->
+  <div class="col-lg-4">
+
+    <!-- Evidence -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-semibold mb-3">
+          <i class="bi bi-file-earmark-code-fill me-2 text-accent"></i>Observed Evidence
+        </h6>
+        {% if finding.observed_value %}
+          <pre class="evidence-block small mb-2">{{ finding.observed_value }}</pre>
+        {% endif %}
+        {% if finding.evidence %}
+          <pre class="evidence-block small mb-0">{{ finding.evidence }}</pre>
+        {% else %}
+          <p class="text-muted small mb-0">No additional evidence recorded.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Tags -->
+    {% if finding.tags %}
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-semibold mb-3">
+          <i class="bi bi-tags-fill me-2 text-accent"></i>Tags
+        </h6>
+        <div class="d-flex flex-wrap gap-2">
+          {% for tag in finding.tags %}
+            <span class="badge bg-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Scan Limitations -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <h6 class="fw-semibold mb-3">
+          <i class="bi bi-exclamation-triangle-fill text-secondary me-2"></i>Scan Limitations
+        </h6>
+        <ul class="list-unstyled small text-muted mb-0">
+          <li class="mb-1"><i class="bi bi-dot"></i>Analysis is limited to HTTP response headers.</li>
+          <li class="mb-1"><i class="bi bi-dot"></i>Application logic is not assessed.</li>
+          <li class="mb-1"><i class="bi bi-dot"></i>No exploitation or credential access performed.</li>
+          <li class="mb-1"><i class="bi bi-dot"></i>TLS cipher/protocol details not assessed.</li>
+          <li><i class="bi bi-dot"></i>Results represent a single point-in-time snapshot.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="d-grid gap-2">
+      <a href="{{ url_for('results', scan_id=result.scan_id) }}"
+         class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Results
+      </a>
+      <a href="{{ url_for('export_pdf', scan_id=result.scan_id) }}"
+         class="btn btn-outline-danger">
+        <i class="bi bi-file-earmark-pdf me-2"></i>Export Full PDF Report
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,251 @@
+/* =========================================================
+   Automated Web Security Scanner — Custom Styles
+   ========================================================= */
+
+/* ── CSS Variables ─────────────────────────────────────── */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-alt: #f7f8fa;
+  --border: #e5e7eb;
+  --text: #1f2328;
+  --muted: #57606a;
+  --accent: #3b82d4;
+  --accent-dark: #1d4ed8;
+  --nav-bg: #0f172a;
+  --footer-bg: #f8f9fa;
+
+  /* Severity */
+  --sev-critical: #dc2626;
+  --sev-high:     #ea580c;
+  --sev-medium:   #ca8a04;
+  --sev-low:      #2563eb;
+  --sev-info:     #6b7280;
+}
+
+/* ── Reset / Base ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Navbar ─────────────────────────────────────────────── */
+.navbar-custom {
+  background-color: var(--nav-bg);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0.65rem 0;
+}
+
+.navbar-custom .navbar-brand {
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+
+.text-accent { color: #60a5fa !important; }
+
+.navbar-custom .nav-link {
+  color: rgba(255,255,255,0.75);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar-custom .nav-link:hover,
+.navbar-custom .nav-link.active {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+/* ── Hero Section ───────────────────────────────────────── */
+.hero-section {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  color: #fff;
+}
+
+.hero-section h1 { color: #fff; }
+.hero-section .text-muted { color: rgba(255,255,255,0.65) !important; }
+
+/* ── Cards ─────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: 10px !important;
+}
+
+.card-header {
+  background: var(--surface) !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+/* ── Stat Cards (Dashboard) ─────────────────────────────── */
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.stat-icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
+.stat-value { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.stat-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
+
+/* ── Finding Stat Cards (Results page) ──────────────────── */
+.finding-stat-card {
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  color: var(--muted);
+  background: var(--surface);
+  transition: box-shadow 0.15s;
+}
+
+.finding-stat-card.active { color: var(--text); }
+
+.finding-stat-critical  { border-color: var(--sev-critical); }
+.finding-stat-critical.active  { background: #fef2f2; color: var(--sev-critical); }
+.finding-stat-high      { border-color: var(--sev-high); }
+.finding-stat-high.active      { background: #fff7ed; color: var(--sev-high); }
+.finding-stat-medium    { border-color: var(--sev-medium); }
+.finding-stat-medium.active    { background: #fefce8; color: var(--sev-medium); }
+.finding-stat-low       { border-color: var(--sev-low); }
+.finding-stat-low.active       { background: #eff6ff; color: var(--sev-low); }
+.finding-stat-informational { border-color: var(--sev-info); }
+.finding-stat-informational.active { background: #f9fafb; color: var(--sev-info); }
+
+/* ── Finding Header Card (Detail page) ──────────────────── */
+.finding-header-card { border-left: 4px solid var(--border) !important; }
+.finding-border-critical    { border-left-color: var(--sev-critical) !important; }
+.finding-border-high        { border-left-color: var(--sev-high) !important; }
+.finding-border-medium      { border-left-color: var(--sev-medium) !important; }
+.finding-border-low         { border-left-color: var(--sev-low) !important; }
+.finding-border-informational { border-left-color: var(--sev-info) !important; }
+
+/* ── Severity Badges ─────────────────────────────────────── */
+.severity-badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+.severity-critical    { background: #fef2f2; color: var(--sev-critical); border: 1px solid #fca5a5; }
+.severity-high        { background: #fff7ed; color: var(--sev-high);     border: 1px solid #fdba74; }
+.severity-medium      { background: #fefce8; color: var(--sev-medium);   border: 1px solid #fde047; }
+.severity-low         { background: #eff6ff; color: var(--sev-low);      border: 1px solid #93c5fd; }
+.severity-informational { background: #f9fafb; color: var(--sev-info);   border: 1px solid #d1d5db; }
+
+/* ── Observation Status Badges ───────────────────────────── */
+.obs-badge {
+  display: inline-block;
+  padding: 0.2em 0.55em;
+  border-radius: 5px;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+.obs-confirmed      { background: #fef2f2; color: #991b1b; }
+.obs-potential      { background: #fff7ed; color: #9a3412; }
+.obs-informational  { background: #eff6ff; color: #1e40af; }
+.obs-inconclusive   { background: #f9fafb; color: #374151; }
+.obs-error          { background: #fdf4ff; color: #7e22ce; }
+
+/* ── Category / Tag Badges ────────────────────────────────── */
+.bg-tag {
+  background-color: #e8f0fe !important;
+  color: var(--accent-dark) !important;
+  border: 1px solid #bfdbfe;
+  font-weight: 500;
+}
+
+/* ── Table Row Highlights ─────────────────────────────────── */
+.finding-row-critical td:first-child { border-left: 3px solid var(--sev-critical); }
+.finding-row-high     td:first-child { border-left: 3px solid var(--sev-high); }
+.finding-row-medium   td:first-child { border-left: 3px solid var(--sev-medium); }
+.finding-row-low      td:first-child { border-left: 3px solid var(--sev-low); }
+.finding-row-informational td:first-child { border-left: 3px solid var(--sev-info); }
+
+/* ── Scan Button ─────────────────────────────────────────── */
+.btn-scan {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.btn-scan:hover {
+  background: linear-gradient(135deg, var(--accent-dark), #1e3a8a);
+  color: #fff;
+}
+
+/* ── Chart Containers ─────────────────────────────────────── */
+.chart-container {
+  position: relative;
+  height: 240px;
+}
+
+.chart-container-sm {
+  position: relative;
+  height: 200px;
+  width: 200px;
+}
+
+/* ── Evidence Block ──────────────────────────────────────── */
+.evidence-block {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 0.82rem;
+  color: var(--text);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.remediation-text p { font-size: 0.93rem; }
+
+/* ── Footer ───────────────────────────────────────────────── */
+.footer-custom {
+  background: var(--footer-bg);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────── */
+.breadcrumb-item + .breadcrumb-item::before { color: var(--muted); }
+
+/* ── Utilities ──────────────────────────────────────────── */
+.text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Responsive tweaks ───────────────────────────────────── */
+@media (max-width: 576px) {
+  .stat-value { font-size: 1.5rem; }
+  .chart-container { height: 180px; }
+}

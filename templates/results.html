@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Results — {{ result.target_url | truncate(50) }}{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="d-flex flex-wrap align-items-start gap-3 mb-4">
+  <div class="flex-grow-1">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb small mb-1">
+        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Scan Results</li>
+      </ol>
+    </nav>
+    <h2 class="fw-bold mb-1 text-truncate" title="{{ result.target_url }}">
+      <i class="bi bi-clipboard-check-fill text-accent me-2"></i>Scan Results
+    </h2>
+    <p class="text-muted small mb-0">
+      <span class="me-3"><i class="bi bi-link-45deg me-1"></i>{{ result.target_url }}</span>
+      <span class="me-3"><i class="bi bi-clock me-1"></i>{{ result.timestamp[:19] | replace("T"," ") }} UTC</span>
+      {% if result.http_status %}
+        <span><i class="bi bi-hash me-1"></i>HTTP {{ result.http_status }}</span>
+      {% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{{ url_for('export_json', scan_id=result.scan_id) }}"
+       class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-filetype-json me-1"></i>Export JSON
+    </a>
+    <a href="{{ url_for('export_pdf', scan_id=result.scan_id) }}"
+       class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-file-earmark-pdf me-1"></i>Export PDF
+    </a>
+  </div>
+</div>
+
+<!-- Status Banner -->
+<div class="alert alert-{% if result.status == 'completed' %}success{% elif result.status == 'partial' %}warning{% else %}danger{% endif %} d-flex align-items-center gap-2 mb-4 shadow-sm" role="alert">
+  <i class="bi bi-{% if result.status == 'completed' %}check-circle-fill{% elif result.status == 'partial' %}exclamation-triangle-fill{% else %}x-circle-fill{% endif %} fs-5 flex-shrink-0"></i>
+  <div>
+    <strong>Scan {{ result.status | title }}</strong>
+    {% if result.status == 'partial' %}
+    — Some checks could not be completed.
+    {% elif result.status == 'completed' %}
+    — All checks ran successfully.
+    {% endif %}
+    {% if result.elapsed_s %}
+      Completed in {{ result.elapsed_s }}s.
+    {% endif %}
+    {% if result.errors %}
+      <br><small class="text-muted">Errors: {{ result.errors | join('; ') | truncate(200) }}</small>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+  {% for sev, cls in [('Critical','danger'),('High','orange'),('Medium','warning'),('Low','primary'),('Informational','secondary')] %}
+  {% set cnt = result.summary.by_severity.get(sev, 0) %}
+  <div class="col-6 col-md">
+    <div class="finding-stat-card finding-stat-{{ sev | lower }} {% if cnt > 0 %}active{% endif %}">
+      <div class="fs-2 fw-bold">{{ cnt }}</div>
+      <div class="small fw-medium">{{ sev }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Severity Donut -->
+{% if result.summary.total > 0 %}
+<div class="row g-4 mb-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body p-4 d-flex flex-column align-items-center">
+        <h6 class="fw-semibold mb-3 align-self-start">
+          <i class="bi bi-pie-chart-fill me-2 text-accent"></i>Distribution
+        </h6>
+        <div class="chart-container-sm">
+          <canvas id="resultDonut"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <!-- Filters -->
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body p-4">
+        <h6 class="fw-semibold mb-3">
+          <i class="bi bi-funnel-fill me-2 text-accent"></i>Filter Findings
+        </h6>
+        <form method="GET" action="{{ url_for('results', scan_id=result.scan_id) }}"
+              class="row g-2 align-items-end" id="filterForm">
+          <div class="col-sm-4">
+            <label class="form-label small fw-medium mb-1">Severity</label>
+            <select name="severity" class="form-select form-select-sm" onchange="this.form.submit()">
+              <option value="">All Severities</option>
+              {% for sev in severities %}
+                <option value="{{ sev }}" {% if current_severity == sev %}selected{% endif %}>
+                  {{ sev }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label small fw-medium mb-1">Category</label>
+            <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+              <option value="">All Categories</option>
+              {% for cat in categories %}
+                <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>
+                  {{ cat }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label small fw-medium mb-1">Search</label>
+            <div class="input-group input-group-sm">
+              <input type="text" name="q" class="form-control"
+                     placeholder="Title / Rule ID…"
+                     value="{{ search_q }}">
+              <button class="btn btn-outline-secondary" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </div>
+          {% if current_severity or current_category or search_q %}
+          <div class="col-12">
+            <a href="{{ url_for('results', scan_id=result.scan_id) }}"
+               class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-x-circle me-1"></i>Clear Filters
+            </a>
+          </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Findings Table -->
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-header bg-transparent border-bottom py-3">
+    <h6 class="fw-semibold mb-0">
+      <i class="bi bi-list-ul me-2 text-accent"></i>
+      Findings
+      <span class="badge bg-secondary ms-2">{{ findings | length }}</span>
+      {% if current_severity or current_category or search_q %}
+        <span class="badge bg-info ms-1 small">Filtered</span>
+      {% endif %}
+    </h6>
+  </div>
+  {% if findings %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th style="width:90px">Severity</th>
+          <th>Finding Title</th>
+          <th style="width:110px">Category</th>
+          <th style="width:110px">Rule ID</th>
+          <th style="width:110px">Status</th>
+          <th style="width:70px"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in findings %}
+        <tr class="finding-row-{{ f.severity | lower }}">
+          <td>
+            <span class="severity-badge severity-{{ f.severity | lower }}">
+              {{ f.severity }}
+            </span>
+          </td>
+          <td>
+            <a href="{{ url_for('finding_detail', finding_id=f.finding_id) }}"
+               class="text-decoration-none fw-medium text-body">
+              {{ f.title | truncate(80) }}
+            </a>
+          </td>
+          <td><span class="badge bg-tag">{{ f.category }}</span></td>
+          <td><code class="small">{{ f.rule_id }}</code></td>
+          <td>
+            <span class="obs-badge obs-{{ f.status }}">
+              {{ f.status | replace('_',' ') | title }}
+            </span>
+          </td>
+          <td>
+            <a href="{{ url_for('finding_detail', finding_id=f.finding_id) }}"
+               class="btn btn-sm btn-outline-primary py-0 px-2">
+              <i class="bi bi-arrow-right"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-center py-5 text-muted">
+    <i class="bi bi-funnel display-4 d-block mb-3 opacity-25"></i>
+    <p class="mb-0">
+      {% if current_severity or current_category or search_q %}
+        No findings match the current filters.
+      {% else %}
+        No findings were generated for this scan.
+      {% endif %}
+    </p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+{% if result.summary.total > 0 %}
+<script>
+const donutData = {
+  labels: ['Critical','High','Medium','Low','Informational'],
+  values: [
+    {{ result.summary.by_severity.get('Critical', 0) }},
+    {{ result.summary.by_severity.get('High', 0) }},
+    {{ result.summary.by_severity.get('Medium', 0) }},
+    {{ result.summary.by_severity.get('Low', 0) }},
+    {{ result.summary.by_severity.get('Informational', 0) }}
+  ]
+};
+initResultDonut(donutData);
+</script>
+{% endif %}
+{% endblock %}

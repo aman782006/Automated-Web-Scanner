@@ -1,0 +1,8 @@
+flask==3.0.3
+flask-wtf==1.2.1
+requests==2.32.3
+reportlab==4.2.2
+python-dotenv==1.0.1
+pytest==8.2.2
+pytest-mock==3.14.0
+gunicorn==22.0.0; sys_platform != 'win32'
